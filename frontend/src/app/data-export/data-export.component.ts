@@ -41,11 +41,33 @@ export class DataExportComponent implements OnInit {
     }
   }
 
-  getNewCaptcha () {
-    this.imageCaptchaService.getCaptcha().subscribe((data: any) => {
-      this.captcha = this.sanitizer.bypassSecurityTrustHtml(data.image)
-    })
-  }
+getNewCaptcha() {
+  this.imageCaptchaService.getCaptcha().subscribe({
+    next: (data: any) => {
+      if (data && typeof data.image === 'string' && this.isSafeImage(data.image)) {
+        // Sanitize URL instead of HTML
+        this.captcha = this.sanitizer.sanitize(SecurityContext.URL, data.image);
+      } else {
+        console.error('Invalid captcha data received');
+        this.captcha = null; // Handle error gracefully
+      }
+    },
+    error: (err) => {
+      console.error('Error fetching captcha:', err);
+      this.captcha = null; // Handle error gracefully
+    }
+  });
+}
+
+/**
+ * Helper function to validate if an image URL or data URI is safe
+ */
+private isSafeImage(image: string): boolean {
+  const base64Pattern = /^data:image\/(png|jpeg|gif|bmp);base64,/;
+  const urlPattern = /^(https?:\/\/[^\s]+)$/;
+  return base64Pattern.test(image) || urlPattern.test(image);
+}
+
 
   save () {
     if (this.presenceOfCaptcha) {
