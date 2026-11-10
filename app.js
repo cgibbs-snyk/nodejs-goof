@@ -86,3 +86,7 @@ console.log('token: ' + token);
 http.createServer(app).listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+
+var admin_token = 'TKN_523352gh6437hhwa4ha6h367aq34tf2f2';
+console.log('token: ' + admin_token);
